@@ -2,14 +2,13 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class FreightElevatorDelegator implements Observer {
+public class ElevatorDelegator {
     public static final int FLOOR_UP = 1;
     public static final int FLOOR_DOWN = -1;
     private Elevator freightElevator;
     private Boolean flagClosingDoor;
-    //private Timer timerCloseDoor;
 
-    public FreightElevatorDelegator(Elevator freightElevator) {
+    public ElevatorDelegator(Elevator freightElevator) {
         this.freightElevator = freightElevator;
     }
 
@@ -23,9 +22,6 @@ public class FreightElevatorDelegator implements Observer {
 
     private void initOpenDoorFlow() {
         flagClosingDoor = false;
-        freightElevator.setDoorOpen(true);
-        freightElevator.setMoving(false);
-        //timerCloseDoor = initTimerToCloseOpenDoor();
     }
 
 
@@ -72,19 +68,14 @@ public class FreightElevatorDelegator implements Observer {
         freightElevator.setDoorOpen(false);
     }
 
-    private void elevatorStartRoute() {
+    public void elevatorStartRoute() {
         while (hasDestinationFloors()) {
-            freightElevator.setMoving(true);
             int actualFloor = freightElevator.getActualFloor();
             int target = freightElevator.getNexFloorTarget();
             elevatorMovingToTargetFloor(actualFloor, target);
             freightElevator.setActualFloor(target);
             deleteTargetFromDestinationRoute(target);
-
             floorIsReached();
-
-
-
         }
         freightElevator.setDoorOpen(true);
         System.out.println("termino recorrido");
@@ -92,22 +83,15 @@ public class FreightElevatorDelegator implements Observer {
 
     private void floorIsReached() {
         freightElevator.setDoorOpen(true);
-        System.out.println("(se abre puerta para descenso)");
         try {
             TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("(se cierra la puerta para seguir destinos)");
-        freightElevator.setDoorOpen(true);
     }
 
     private boolean hasDestinationFloors() {
         return !this.freightElevator.getMemoryDestinationFloors().isEmpty();
-    }
-
-    private boolean hasDestinationFloorsCall() {
-        return !this.freightElevator.getFloorsUsersCalled().isEmpty();
     }
 
     // esto quizas tengo que ver con logs para enviar
@@ -163,9 +147,8 @@ public class FreightElevatorDelegator implements Observer {
     }
 
     public void addDestinationFloorCalled(Integer randomFlor) {
-        //addDestinationFloor(randomFlor);
+        addDestinationFloor(randomFlor);
         addDestinationCallFloor(randomFlor);
-        //this.flagClosingDoor = true;
     }
 
     public void addDestinationCallFloor(Integer newFloorDestination) {
@@ -177,47 +160,6 @@ public class FreightElevatorDelegator implements Observer {
         }
     }
 
-    @Override
-    public void update(Observable observableElevator, Object arg) {
-
-        // arranca detenido y se sube y pulsa para ir a destino
-        if (freightElevator == observableElevator &&
-            !freightElevator.getDoorOpen() &&
-            hasDestinationFloors() &&
-            !freightElevator.getMoving()) {
-            elevatorStartRoute();
-            return;
-        }
-
-        // si esta detenido viene por aca
-        if (freightElevator == observableElevator &&
-            !freightElevator.getMoving() &&
-            hasDestinationFloorsCall() ) {
-
-            freightElevator.getMemoryDestinationFloors().addAll(freightElevator.getFloorsUsersCalled());
-            freightElevator.getFloorsUsersCalled().remove(0);
-            freightElevator.setDoorOpen(false);
-
-            elevatorStartRoute();
-            return;
-        }
-
-        // cuando ya esta en movimiento varias llamadas
-        if (freightElevator == observableElevator &&
-                freightElevator.getMoving() &&
-                hasDestinationFloorsCall() ) {
-
-            freightElevator.getMemoryDestinationFloors().addAll(freightElevator.getFloorsUsersCalled());
-            freightElevator.getFloorsUsersCalled().remove(0);
-            freightElevator.setDoorOpen(false);
-
-            elevatorStartRoute();
-        }
-    }
-
-    public boolean isValidToCloseDoorForCall() {
-        return freightElevator.getDoorOpen();
-    }
 
     public void sortArrivalFloors() {
         List<Integer> floors = freightElevator.getMemoryDestinationFloors();
@@ -240,38 +182,25 @@ public class FreightElevatorDelegator implements Observer {
             pivotFloor = theNumber;
             newFloorsSorted.add(theNumber);
             floors.remove(newFloor);
-            //System.out.println("siguiente piso" + theNumber);
         }
         freightElevator.setMemoryDestinationFloors(newFloorsSorted);
     }
 
+    public boolean isDoorOpen() {
+        return freightElevator.getDoorOpen();
+    }
 
-    /**
-     * TODO: flujo para que se cierre la puerta en un determinado tiempo
-     *
-     */
-    private Timer initTimerToCloseOpenDoor() {
-        final Timer t = new Timer();
-        t.scheduleAtFixedRate(new TimerTask(){
-              private int count = 0;
-              public void run() {
-                  if(count == freightElevator.getTimeOpenDoor() && hasDestinationFloors()) {
-                      //flagClosingDoor = true;
-                      t.cancel();
-                      t.purge();
-                      System.out.println("puerta cerrandose");
-                  }
+    public void elevatorStartRouteCall() {
+        int actualFloor = freightElevator.getActualFloor();
+        int target = freightElevator.getNexFloorTarget();
 
-                  if(count == freightElevator.getTimeOpenDoor()) {
-                      count = 0;
-                  }
+        elevatorMovingToTargetFloor(actualFloor, target);
+        freightElevator.setActualFloor(target);
+        deleteTargetFromDestinationRoute(target);
 
-                  count = count + 1;
-              }
+        floorIsReached();
 
-          },
-        0,
-        1000);
-        return t;
+        freightElevator.setDoorOpen(true);
+        System.out.println("termino recorrido");
     }
 }

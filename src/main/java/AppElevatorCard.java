@@ -1,7 +1,4 @@
-
-
-public class AppElevator {
-
+public class AppElevatorCard {
     public static void main(String[] args) {
         Elevator freightElevator = new FreightElevator(getWeightLimitKilogramFromPropertyConfig());
 
@@ -24,5 +21,4 @@ public class AppElevator {
     private static int getWeightLimitKilogramFromPropertyConfig() {
         return 3000;//TODO: this should be read from a propertyconfig.xml. pipeline should has the weight
     }
-
 }
