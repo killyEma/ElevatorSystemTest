@@ -1,4 +1,6 @@
-import java.util.List;
+package model;
+
+import model.Elevator;
 
 public class FreightElevator extends Elevator {
 

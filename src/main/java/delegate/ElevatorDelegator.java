@@ -1,3 +1,7 @@
+package delegate;
+
+import model.Elevator;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
