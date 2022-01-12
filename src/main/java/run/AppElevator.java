@@ -25,7 +25,6 @@ public class AppElevator {
         ObserverCallsThread.start();
         elevatorThread.start();
         RefereeRouteThread.start();
-
     }
 
     private static int getWeightLimitKilogramFromPropertyConfig() {

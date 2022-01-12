@@ -9,17 +9,17 @@ import java.util.stream.Collectors;
 public class ElevatorDelegator {
     public static final int FLOOR_UP = 1;
     public static final int FLOOR_DOWN = -1;
-    private Elevator freightElevator;
+    private Elevator _elevator;
     private Boolean flagClosingDoor;
 
-    public ElevatorDelegator(Elevator freightElevator) {
-        this.freightElevator = freightElevator;
+    public ElevatorDelegator(Elevator elevator) {
+        this._elevator = elevator;
     }
 
     public void clearActualFloor() {
-        if(!freightElevator.getMemoryDestinationFloors().isEmpty()) {
-            freightElevator.setActualFloor(freightElevator.getMemoryDestinationFloors().get(0));
-            freightElevator.getMemoryDestinationFloors().remove(0);
+        if(!_elevator.getMemoryDestinationFloors().isEmpty()) {
+            _elevator.setActualFloor(_elevator.getMemoryDestinationFloors().get(0));
+            _elevator.getMemoryDestinationFloors().remove(0);
         }
         initOpenDoorFlow();
     }
@@ -31,37 +31,37 @@ public class ElevatorDelegator {
 
 
     public void addDestinationFloor(Integer newFloorDestination) {
-        if(newFloorDestination.equals(freightElevator.getActualFloor())) {
+        if(newFloorDestination.equals(_elevator.getActualFloor())) {
            return;
         }
 
-        List<Integer> destinations = freightElevator.getMemoryDestinationFloors();
+        List<Integer> destinations = _elevator.getMemoryDestinationFloors();
         if (!destinations.contains(newFloorDestination)) {
-            freightElevator.getMemoryDestinationFloors().add(newFloorDestination);
+            _elevator.getMemoryDestinationFloors().add(newFloorDestination);
         }
     }
 
     public boolean elevatorHasDestinationFloors() {
-        return !freightElevator.getMemoryDestinationFloors().isEmpty();
+        return !_elevator.getMemoryDestinationFloors().isEmpty();
     }
 
     public void setWeightInput(Double weightInput) {
-        freightElevator.setWeightInputKilogram(weightInput);
+        _elevator.setWeightInputKilogram(weightInput);
     }
 
     public boolean isValidWeightInput() {
-        return freightElevator.getWeightInputKilogram() <= freightElevator.getWeightLimitKilogram();
+        return _elevator.getWeightInputKilogram() <= _elevator.getWeightLimitKilogram();
     }
 
     public void startWeightAlarm() {
-        this.freightElevator.setAlarmOn(true);
-        this.freightElevator.setShutOff(true);
+        this._elevator.setAlarmOn(true);
+        this._elevator.setShutOff(true);
 
     }
 
     public void weightIsValidated() {
-        this.freightElevator.setAlarmOn(false);
-        this.freightElevator.setShutOff(false);
+        this._elevator.setAlarmOn(false);
+        this._elevator.setShutOff(false);
     }
 
     public boolean isValidToCloseDoor() {
@@ -69,24 +69,24 @@ public class ElevatorDelegator {
     }
 
     public void closeDoor() {
-        freightElevator.setDoorOpen(false);
+        _elevator.setDoorOpen(false);
     }
 
     public void elevatorStartRoute() {
         while (hasDestinationFloors()) {
-            int actualFloor = freightElevator.getActualFloor();
-            int target = freightElevator.getNexFloorTarget();
+            int actualFloor = _elevator.getActualFloor();
+            int target = _elevator.getNexFloorTarget();
             elevatorMovingToTargetFloor(actualFloor, target);
-            freightElevator.setActualFloor(target);
+            _elevator.setActualFloor(target);
             deleteTargetFromDestinationRoute(target);
             floorIsReached();
         }
-        freightElevator.setDoorOpen(true);
+        _elevator.setDoorOpen(true);
         System.out.println("termino recorrido");
     }
 
     private void floorIsReached() {
-        freightElevator.setDoorOpen(true);
+        _elevator.setDoorOpen(true);
         try {
             TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedException e) {
@@ -95,7 +95,7 @@ public class ElevatorDelegator {
     }
 
     private boolean hasDestinationFloors() {
-        return !this.freightElevator.getMemoryDestinationFloors().isEmpty();
+        return !this._elevator.getMemoryDestinationFloors().isEmpty();
     }
 
     // esto quizas tengo que ver con logs para enviar
@@ -130,11 +130,11 @@ public class ElevatorDelegator {
     }
 
     private void deleteTargetFromDestinationRoute(Integer floorToDelete) {
-        List<Integer> filteredDestinationFloors = freightElevator.getMemoryDestinationFloors()
+        List<Integer> filteredDestinationFloors = _elevator.getMemoryDestinationFloors()
                                                                 .stream()
                                                                 .filter(floor -> !floor.equals(floorToDelete) )
                                                                 .collect(Collectors.toList());
-        freightElevator.setMemoryDestinationFloors(filteredDestinationFloors);
+        _elevator.setMemoryDestinationFloors(filteredDestinationFloors);
     }
 
     public void addInputKeyboardOption(Integer newFloorDestination) {
@@ -156,19 +156,19 @@ public class ElevatorDelegator {
     }
 
     public void addDestinationCallFloor(Integer newFloorDestination) {
-        if(!newFloorDestination.equals(freightElevator.getActualFloor())) {
-            List<Integer> destinations = freightElevator.getFloorsUsersCalled();
+        if(!newFloorDestination.equals(_elevator.getActualFloor())) {
+            List<Integer> destinations = _elevator.getFloorsUsersCalled();
             if (!destinations.contains(newFloorDestination)) {
-                freightElevator.getFloorsUsersCalled().add(newFloorDestination);
+                _elevator.getFloorsUsersCalled().add(newFloorDestination);
             }
         }
     }
 
 
     public void sortArrivalFloors() {
-        List<Integer> floors = freightElevator.getMemoryDestinationFloors();
+        List<Integer> floors = _elevator.getMemoryDestinationFloors();
         List<Integer> newFloorsSorted = new ArrayList<>();
-        int pivotFloor = freightElevator.getActualFloor();
+        int pivotFloor = _elevator.getActualFloor();
 
         while(!floors.isEmpty()) {
             int distance = Math.abs(floors.get(0) - pivotFloor);
@@ -187,24 +187,24 @@ public class ElevatorDelegator {
             newFloorsSorted.add(theNumber);
             floors.remove(newFloor);
         }
-        freightElevator.setMemoryDestinationFloors(newFloorsSorted);
+        _elevator.setMemoryDestinationFloors(newFloorsSorted);
     }
 
     public boolean isDoorOpen() {
-        return freightElevator.getDoorOpen();
+        return _elevator.getDoorOpen();
     }
 
     public void elevatorStartRouteCall() {
-        int actualFloor = freightElevator.getActualFloor();
-        int target = freightElevator.getNexFloorTarget();
+        int actualFloor = _elevator.getActualFloor();
+        int target = _elevator.getNexFloorTarget();
 
         elevatorMovingToTargetFloor(actualFloor, target);
-        freightElevator.setActualFloor(target);
+        _elevator.setActualFloor(target);
         deleteTargetFromDestinationRoute(target);
 
         floorIsReached();
 
-        freightElevator.setDoorOpen(true);
+        _elevator.setDoorOpen(true);
         System.out.println("termino recorrido");
     }
 }
