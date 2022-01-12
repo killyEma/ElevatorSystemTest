@@ -20,6 +20,7 @@ Task to enhance:
   -Start and end Alarm. 
   -Save "Call the elevator". 
   -Input Elevator Weight.
+    
 How to test it locally:
 Run project "Ingrese los pisos antes que se cierre la puerta'' then enter a number between -1 and 50 including 0. (range in propertyconfig.xml) 
 Enter 70 when the input floor is over "El peso total es:'' you have to enter a valid wight (weight in propertyconfig.xml)
